@@ -7,7 +7,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.UriInfo;
 import org.jboss.resteasy.reactive.RestResponse;
-import service.http.AgenciaService;
+import service.AgenciaService;
 
 @Path("/agencias")
 @Transactional
