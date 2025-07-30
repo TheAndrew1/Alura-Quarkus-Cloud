@@ -4,6 +4,7 @@ import domain.Agencia;
 import domain.http.AgenciaHttp;
 import domain.http.SituacaoCadastral;
 import exceptions.AgenciaNaoAtivaOuNaoEncontradaException;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -22,8 +23,10 @@ public class AgenciaService {
         AgenciaHttp agenciaHttp = situacaoCadastralHttpService.buscarPorCnpj(agencia.getCnpj());
 
         if(agenciaHttp != null && agenciaHttp.getSituacaoCadastral().equals(SituacaoCadastral.ATIVO)) {
+            Log.info("A agencia com o CNPJ " + agencia.getCnpj() + " foi cadastrada");
             agenciaRepository.persist(agencia);
         } else {
+            Log.info("A agencia com o CNPJ " + agencia.getCnpj() + " não foi cadastrada");
             throw new AgenciaNaoAtivaOuNaoEncontradaException();
         }
     }
@@ -33,6 +36,7 @@ public class AgenciaService {
     }
 
     public void deletar(Long id) {
+        Log.info("A agencia com o id " + id + " foi deletada");
         agenciaRepository.deleteById(id);
     }
 
