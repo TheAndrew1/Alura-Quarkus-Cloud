@@ -4,6 +4,7 @@ import domain.Agencia;
 import domain.http.AgenciaHttp;
 import domain.http.SituacaoCadastral;
 import exceptions.AgenciaNaoAtivaOuNaoEncontradaException;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,14 +20,19 @@ public class AgenciaService {
     @Inject
     private AgenciaRepository agenciaRepository;
 
+    @Inject
+    private MeterRegistry meterRegistry;
+
     public void cadastrar(Agencia agencia) {
         AgenciaHttp agenciaHttp = situacaoCadastralHttpService.buscarPorCnpj(agencia.getCnpj());
 
         if(agenciaHttp != null && agenciaHttp.getSituacaoCadastral().equals(SituacaoCadastral.ATIVO)) {
             Log.info("A agencia com o CNPJ " + agencia.getCnpj() + " foi cadastrada");
+            meterRegistry.counter("agencia_adicionada_counter").increment();
             agenciaRepository.persist(agencia);
         } else {
             Log.info("A agencia com o CNPJ " + agencia.getCnpj() + " não foi cadastrada");
+            meterRegistry.counter("agencia_nao_adicionada_counter").increment();
             throw new AgenciaNaoAtivaOuNaoEncontradaException();
         }
     }
