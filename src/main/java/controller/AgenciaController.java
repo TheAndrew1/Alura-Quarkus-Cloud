@@ -2,6 +2,7 @@ package controller;
 
 import domain.Agencia;
 import io.smallrye.common.annotation.NonBlocking;
+import io.smallrye.faulttolerance.api.RateLimit;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -12,7 +13,6 @@ import org.jboss.resteasy.reactive.RestResponse;
 import service.AgenciaService;
 
 @Path("/agencias")
-@Transactional
 public class AgenciaController {
     @Inject
     private AgenciaService agenciaService;
@@ -25,6 +25,7 @@ public class AgenciaController {
     }
 
     @GET
+    @RateLimit(value = 5, window = 10)
     @Path("{id}")
     public Uni<RestResponse<Agencia>> buscarPorId(Long id) {
         return this.agenciaService.buscarPorId(id).onItem().transform(RestResponse::ok);
