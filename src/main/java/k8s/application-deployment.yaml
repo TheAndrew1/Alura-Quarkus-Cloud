@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-service
+  namespace: banking-service
+  labels:
+    app: banking-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: banking-service
+  template:
+    metadata:
+      labels:
+        app: banking-service
+    spec:
+      containers:
+        - name: banking-service
+          image: joao0212/banking-service:v9
+          ports:
+            - containerPort: 8080
+          env:
+            - name: QUARKUS_KAFKA_SERVER
+              value: "kafka"
+            - name: QUARKUS_KAFKA_PORT
+              value: "9092"
+            - name: QUARKUS_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              value: "postgres"
+            - name: QUARKUS_DATASOURCE_HOST
+              value: "postgres"
+            - name: QUARKUS_DATASOURCE_PORT
+              value: "5432"
+            - name: QUARKUS_CLIENT_HTTP
+              value: "banking-validation-service"
+            - name: QUARKUS_CLIENT_HTTP_PORT
+              value: "8181"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: banking-service-service
+  namespace: banking-service
+spec:
+  selector:
+    app: banking-service
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30001
+  type: NodePort
